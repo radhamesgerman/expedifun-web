@@ -417,7 +417,7 @@
       <div class="eyebrow" id="contactEyebrow">Contact us</div>
       <h2 class="sec-title" id="contactTitle">Let's plan your trip.</h2>
       <p id="contactNote"></p>
-      <div class="ci"><b id="ciEmailL">Email</b><br>hello@expedifun.com</div>
+      <div class="ci"><b id="ciEmailL">Email</b><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bfd7dad3d3d0ffdac7cfdadbd6d9cad191dcd0d2">[email&#160;protected]</a></div>
       <div class="ci"><b id="ciPhoneL">Phone</b><br>+1 (829) 000-0000</div>
     </div>
     <form class="cf" id="contactForm" onsubmit="return false">
@@ -484,7 +484,7 @@
 <!-- ===== UNDER CONSTRUCTION — delete this element + its CSS rule to remove ===== -->
 <div id="ucBadge"><span class="dot"></span><span id="ucText">Under construction</span></div>
 
-<script src="assets/image-slot.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="assets/image-slot.js"></script>
 <script src="ef-data.js"></script>
 <script>
 /* ---------- state ---------- */
@@ -500,15 +500,14 @@ let LANG=localStorage.getItem("ef_lang")||"en";
 const t=k=>UI[LANG][k];
 
 /* ---------- hero scrubbing ---------- */
-/* Per-franchise hero clip. Each franchise can have its OWN (shorter) clip:
-   drop its frames in a new folder and point dir+count here. */
+/* Per-destination hero clip. Each destination has its OWN folder + frame count. */
 const HERO_CLIPS={
   do:{dir:"assets/hero/do/",count:81},
-  co:{dir:"assets/hero/do/",count:81},   /* TODO: crea assets/hero/co/ y cámbialo a "assets/hero/co/" */
-  mx:{dir:"assets/hero/do/",count:81},   /* TODO: crea assets/hero/mx/ y cámbialo a "assets/hero/mx/" */
-  pr:{dir:"assets/hero/do/",count:81},   /* TODO: crea assets/hero/pr/ y cámbialo a "assets/hero/pr/" */
-  us:{dir:"assets/hero/do/",count:81},   /* TODO: crea assets/hero/us/ y cámbialo a "assets/hero/us/" */
-  es:{dir:"assets/hero/do/",count:81}    /* TODO: crea assets/hero/es/ y cámbialo a "assets/hero/es/" */
+  co:{dir:"assets/hero/co/",count:60},
+  mx:{dir:"assets/hero/mx/",count:60},
+  pr:{dir:"assets/hero/pr/",count:59},
+  us:{dir:"assets/hero/us/",count:63},
+  es:{dir:"assets/hero/es/",count:61}
 };
 let FRAME_COUNT=HERO_CLIPS[CURRENT].count;
 let HERO_DIR=HERO_CLIPS[CURRENT].dir;
