@@ -1,3 +1,0 @@
-OPERADOR · NY Airport Shuttle  (Estados Unidos)
-3 carpetas de vehículo: sedan / suv / van. Cada una con 4 fotos (01..04).
-La tarjeta de este operador usa sedan/01.jpg como portada.
