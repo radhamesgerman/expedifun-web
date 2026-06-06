@@ -472,7 +472,7 @@
       <div class="eyebrow" id="contactEyebrow">Contact us</div>
       <h2 class="sec-title" id="contactTitle">Let's plan your trip.</h2>
       <p id="contactNote"></p>
-      <div class="ci"><b id="ciEmailL">Email</b><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ef878a838380af8a979f8a8b86899a81c18c8082">[email&#160;protected]</a></div>
+      <div class="ci"><b id="ciEmailL">Email</b><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c1a9a4adadae81a4b9b1a4a5a8a7b4afefa2aeac">[email&#160;protected]</a></div>
       <div class="ci"><b id="ciPhoneL">Phone</b><br>+1 (829) 000-0000</div>
     </div>
     <form class="cf" id="contactForm" onsubmit="return false">
@@ -946,19 +946,8 @@ window.addEventListener("keydown",e=>{
 });
 
 /* boot */
-/* click logo → fast reverse hero animation back to top */
-function fastScrollTop(){
-  const start=window.pageYOffset||document.documentElement.scrollTop||0;
-  if(start<=2){window.scrollTo(0,0);return;}
-  const dur=Math.min(800,Math.max(450,start*0.4));
-  const t0=performance.now(), ease=p=>1-Math.pow(1-p,3);
-  (function step(now){
-    const p=Math.min(1,(now-t0)/dur);
-    window.scrollTo(0,Math.round(start*(1-ease(p))));
-    onScroll();
-    if(p<1)requestAnimationFrame(step);
-  })(t0);
-}
+/* click logo → reverse hero animation back to top (same smooth speed as "Explore trips") */
+function fastScrollTop(){ window.scrollTo({top:0,behavior:"smooth"}); }
 (function(){const b=document.querySelector(".brand");if(b){b.setAttribute("title","ExpediFun");b.addEventListener("click",fastScrollTop);}})();
 window.addEventListener("scroll",onScroll,{passive:true});
 window.addEventListener("resize",()=>{dpr=Math.min(window.devicePixelRatio||1,2);sizeCanvas();onScroll();});

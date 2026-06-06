@@ -182,7 +182,8 @@ window.LOCATIONS = {
       {loc:"San Francisco", price:"95",  name:{en:"Alcatraz & Bay Cruise",es:"Alcatraz y Crucero por la Bahía"}, desc:{en:"Tour the legendary island prison and sail under the Golden Gate.",es:"Recorre la legendaria prisión y navega bajo el Golden Gate."}},
       {loc:"Miami",         price:"69",  name:{en:"Everglades Airboat",es:"Hidrodeslizador en los Everglades"}, desc:{en:"Airboat through the wetlands and meet the wildlife.",es:"Hidrodeslizador por los humedales y fauna salvaje."}},
       {loc:"Los Angeles",   price:"75",  name:{en:"Hollywood & Celebrity Homes",es:"Hollywood y Casas de Famosos"}, desc:{en:"Walk of Fame, the Hollywood Sign and Beverly Hills.",es:"Paseo de la Fama, el letrero de Hollywood y Beverly Hills."}},
-      {loc:"Hawaii",        price:"189", name:{en:"Pearl Harbor & Honolulu",es:"Pearl Harbor y Honolulu"}, desc:{en:"USS Arizona Memorial and a guided island tour.",es:"Memorial USS Arizona y tour guiado por la isla."}}
+      {loc:"Hawaii",        price:"189", name:{en:"Pearl Harbor & Honolulu",es:"Pearl Harbor y Honolulu"}, desc:{en:"USS Arizona Memorial and a guided island tour.",es:"Memorial USS Arizona y tour guiado por la isla."}},
+      {loc:"Washington, D.C.",price:"79",  name:{en:"National Mall & Monuments",es:"National Mall y Monumentos"}, desc:{en:"The Capitol, Lincoln Memorial and Smithsonian museums on a guided tour.",es:"El Capitolio, el Lincoln Memorial y los museos Smithsonian en tour guiado."}}
     ]},
   es:{ flag:"🇪🇸", place:{en:"Spain",es:"España"},
     welcome:{en:"Welcome to",es:"Bienvenido a"}, currency:"€",
@@ -196,7 +197,8 @@ window.LOCATIONS = {
       {loc:"Mallorca",      price:"89",  name:{en:"Tramuntana Coast Catamaran",es:"Catamarán Costa de Tramuntana"}, desc:{en:"Sail hidden coves with snorkel and lunch aboard.",es:"Navega calas escondidas con snorkel y almuerzo a bordo."}},
       {loc:"San Sebastián", price:"79",  name:{en:"Pintxos & Wine Walk",es:"Ruta de Pintxos y Vino"}, desc:{en:"Taste the Basque country's legendary bar food.",es:"Prueba la legendaria comida de barra del País Vasco."}},
       {loc:"Valencia",      price:"45",  name:{en:"City of Arts & Sciences",es:"Ciudad de las Artes y las Ciencias"}, desc:{en:"Futuristic architecture and Europe's top aquarium.",es:"Arquitectura futurista y el mejor acuario de Europa."}},
-      {loc:"Ibiza",         price:"95",  name:{en:"Sunset Boat & Es Vedrà",es:"Barco al Atardecer y Es Vedrà"}, desc:{en:"Cruise to the iconic islet for golden-hour views.",es:"Navega al icónico islote para ver el atardecer."}}
+      {loc:"Ibiza",         price:"95",  name:{en:"Sunset Boat & Es Vedrà",es:"Barco al Atardecer y Es Vedrà"}, desc:{en:"Cruise to the iconic islet for golden-hour views.",es:"Navega al icónico islote para ver el atardecer."}},
+      {loc:"Córdoba",       price:"55",  name:{en:"Mezquita-Catedral & Old Town",es:"Mezquita-Catedral y Casco Antiguo"}, desc:{en:"The breathtaking mosque-cathedral and the Jewish quarter.",es:"La impresionante mezquita-catedral y la judería."}}
     ]}
 };
 
