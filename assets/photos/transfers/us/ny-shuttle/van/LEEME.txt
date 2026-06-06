@@ -1,0 +1,7 @@
+VAN · NY Airport Shuttle (Estados Unidos)
+Vehículo: VAN (grupos / familias)
+Pon aquí hasta 4 fotos de ESTE vehículo de ESTE operador:
+  01.jpg → principal (la que se ve al elegir VAN)
+  02.jpg → galería
+  03.jpg → galería
+  04.jpg → galería
