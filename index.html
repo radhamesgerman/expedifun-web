@@ -9,10 +9,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Inter = body · Poppins = geometric round headlines (hero + titles) -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
   :root{
     --navy:#00407A;
     --teal:#00B3AB;
+    --teal-d:#008078;
     --ink:#0a2536;
     --paper:#fbf9f4;
     --red:#ef3a33;
@@ -108,10 +111,14 @@
   /* ---------- Gallery ---------- */
   .gallery{background:#fff}
   .gal-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:200px;gap:14px;margin-top:2.6rem}
-  .gal-grid .cell{position:relative}
+  .gal-grid .cell{position:relative;cursor:pointer}
+  .gal-grid .cell .gal-ph img{transition:transform .4s ease}
+  .gal-grid .cell:hover .gal-ph img{transform:scale(1.06)}
+  .gal-grid .cell::after{content:"";position:absolute;inset:0;border-radius:14px;background:rgba(6,28,42,0);transition:background .25s;z-index:2;pointer-events:none}
+  .gal-grid .cell:hover::after{background:rgba(6,28,42,.18)}
   .gal-grid .cell:nth-child(1){grid-column:span 2;grid-row:span 2}
   .gal-grid .cell:nth-child(6){grid-column:span 2}
-  .gal-grid image-slot{width:100%;height:100%}
+  .gal-grid .gal-ph{position:absolute;inset:0;border-radius:14px}
   .gal-cap{position:absolute;left:12px;bottom:12px;z-index:3;color:#fff;font-size:.74rem;font-weight:600;letter-spacing:.04em;text-shadow:0 1px 8px rgba(0,0,0,.5);pointer-events:none}
   @media(max-width:760px){.gal-grid{grid-template-columns:1fr 1fr;grid-auto-rows:150px}.gal-grid .cell:nth-child(1){grid-column:span 2}}
 
@@ -180,6 +187,10 @@
   .fav-list{padding:.6rem 1.5rem 1.5rem;overflow-y:auto;display:flex;flex-direction:column}
   .fav-empty{color:var(--muted);font-size:.92rem;line-height:1.5;padding-top:1.4rem}
   .fav-row{display:flex;justify-content:space-between;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--line)}
+  .fr-main{display:flex;align-items:center;gap:.85rem;min-width:0}
+  .fr-thumb{flex:0 0 auto;width:52px;height:52px;border-radius:50%;overflow:hidden;position:relative;background:#e7ece9;box-shadow:0 2px 8px -3px rgba(0,0,0,.3)}
+  .fr-thumb>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .fr-text{min-width:0}
   .fr-loc{font-size:.66rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--teal)}
   .fr-name{font-family:var(--font-head);font-weight:600;color:var(--navy);margin:.18rem 0}
   .fr-price{font-size:.82rem;color:var(--muted)}
@@ -240,6 +251,9 @@
   .op-route .orp{text-align:right;flex-shrink:0}
   .op-route .orp b{font-family:var(--font-head);color:var(--ink);font-size:1rem}
   .op-route .orp span{display:block;font-size:.7rem;color:var(--muted)}
+  .op-route-other{background:#f6fbfb;border-style:dashed;border-color:var(--teal)}
+  .op-route-other .orr{color:var(--teal-d)}
+  .op-route-other .orp span{font-style:italic;max-width:13ch}
   .op-bookwrap{border-top:1px solid var(--line);padding-top:1.5rem;margin-top:1.6rem}
   .op-booknote{font-size:.84rem;color:var(--muted);margin:-.3rem 0 1.1rem;line-height:1.45}
 
@@ -358,6 +372,74 @@
   .buy-pay:hover{background:var(--navy)}
   .buy-foot{font-size:.76rem;color:var(--muted);text-align:center}
   .buy-done{display:none}.buy-panel.done .buy-done{display:block;text-align:center;color:var(--teal);font-weight:600}
+  .buy-back{align-self:flex-start;display:inline-flex;align-items:center;gap:.35rem;background:none;border:none;padding:.1rem 0;margin:-.2rem 0 -.2rem;font-family:inherit;font-size:.86rem;font-weight:600;color:var(--muted);cursor:pointer;transition:color .15s}
+  .buy-back:hover{color:var(--teal)}
+  .buy-back span{font-size:1.2rem;line-height:1}
+  .buy-dethead{font-family:var(--font-head);font-size:.98rem;color:var(--navy);border-top:1px solid var(--line);padding-top:1rem;margin-top:.2rem}
+  .buy-slotnote{font-size:.72rem;color:var(--muted);margin-top:.3rem;font-style:italic}
+  /* route map preview */
+  .buy-map{margin-top:.4rem}
+  .buy-maplabel{display:flex;align-items:center;gap:.6rem;font-family:var(--font-head);font-size:.98rem;color:var(--navy);border-top:1px solid var(--line);padding-top:1rem;margin-bottom:.6rem}
+  .buy-map-dur{font-family:ui-monospace,monospace;font-size:.72rem;font-weight:700;color:var(--teal-d);background:#e6f4f3;border-radius:6px;padding:.18rem .5rem}
+  .buy-map-frame{position:relative;height:200px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#e8eef0}
+  .buy-map-canvas{position:absolute;inset:0;width:100%;height:100%}
+  .buy-map-canvas.leaflet-container{background:#e8eef0;font-family:inherit}
+  .buy-map-load{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(232,238,240,.7);z-index:500}
+  .buy-map-load::after{content:"";width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .map-pin span{display:block;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .buy-map-expand{position:absolute;top:8px;right:8px;z-index:500;width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--navy);font-size:1.1rem;line-height:1;cursor:pointer;box-shadow:0 2px 8px -2px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s}
+  .buy-map-expand:hover{background:var(--navy);color:#fff;transform:scale(1.05)}
+  /* fullscreen map modal */
+  .mapbig{position:fixed;inset:0;z-index:140;background:rgba(6,28,42,.72);backdrop-filter:blur(4px);display:none;flex-direction:column;padding:3vh 3vw}
+  .mapbig.show{display:flex}
+  .mapbig-bar{display:flex;align-items:center;gap:1rem;color:#fff;padding:0 .2rem .8rem}
+  .mapbig-route{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-family:var(--font-head);font-size:1.02rem}
+  .mapbig-route .mb-arrow{color:var(--teal);font-weight:700}
+  .mapbig-dur{font-family:ui-monospace,monospace;font-size:.8rem;font-weight:700;color:#06202e;background:#7fe3df;border-radius:6px;padding:.2rem .55rem;margin-left:.4rem}
+  .mapbig-x{margin-left:auto;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:1.6rem;line-height:1;cursor:pointer}
+  .mapbig-x:hover{background:rgba(255,255,255,.3)}
+  .mapbig-canvas{flex:1;border-radius:14px;overflow:hidden;background:#e8eef0}
+  .mapbig-canvas.leaflet-container{font-family:inherit}
+  .buy-map-foot{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:.5rem}
+  .buy-map-hint{font-size:.76rem;color:var(--muted);font-style:italic}
+  .buy-map-link{font-size:.82rem;font-weight:600;color:var(--teal-d);text-decoration:none;white-space:nowrap;margin-left:auto}
+  .buy-map-link:hover{text-decoration:underline}
+  /* payment method marks */
+  .pay-methods{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0 .7rem}
+  .pm-ic{display:inline-flex;align-items:center;gap:.15rem;height:28px;padding:0 .55rem;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:.7rem;font-weight:800;letter-spacing:.02em;color:#1a1f36;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .pm-visa{color:#1a1f71;font-style:italic;font-family:Georgia,serif;font-size:.86rem;letter-spacing:.04em}
+  .pm-amex{color:#fff;background:#016fd0;border-color:#016fd0}
+  .pm-mc{padding:0 .45rem}
+  .pm-mc svg{height:18px;width:auto;display:block}
+  .pm-pp{font-family:Georgia,serif;font-style:italic;font-size:.82rem;font-weight:700}
+  .pm-pp .pp-a{color:#003087}.pm-pp .pp-b{color:#009cde}
+  .pm-apple{color:#000;font-weight:600;gap:.22rem}
+  .pm-apple svg{height:14px;width:auto;display:block;margin-top:-2px}
+  .pm-gpay{font-weight:600;color:#5f6368;letter-spacing:0}
+  .pm-gpay .g-b{color:#4285f4}.pm-gpay .g-r{color:#ea4335}.pm-gpay .g-y{color:#fbbc05}.pm-gpay .g-g{color:#34a853}
+  .buy-fields input.err{border-color:#e0564f;background:#fff5f4}
+
+  /* transfer confirmation — operator trip sheet (manifiesto) */
+  .tc-wrap{padding:2rem 1.8rem 1.8rem;text-align:center;max-height:90vh;overflow-y:auto}
+  .tc-check{width:58px;height:58px;border-radius:50%;background:var(--teal);color:#fff;font-size:1.9rem;line-height:1;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem}
+  .tc-title{font-family:var(--font-head);font-size:1.5rem;color:var(--navy);line-height:1.1}
+  .tc-sub{font-size:.9rem;color:var(--muted);margin:.4rem auto 1.4rem;max-width:42ch}
+  .ts-card{text-align:left;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+  .ts-head{display:flex;align-items:center;gap:.7rem;background:var(--navy);color:#fff;padding:.85rem 1rem}
+  .ts-flag{font-size:1.4rem;line-height:1}
+  .ts-headtext{flex:1;min-width:0}
+  .ts-sheet{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#7fe3df;font-weight:600}
+  .ts-op{font-family:var(--font-head);font-size:.98rem;line-height:1.2}
+  .ts-auto{font-size:.6rem;font-weight:700;letter-spacing:.1em;background:var(--teal);color:#fff;padding:.28rem .5rem;border-radius:5px}
+  .ts-body{padding:.3rem 1.1rem .8rem}
+  .ts-row{display:flex;justify-content:space-between;gap:1.2rem;padding:.62rem 0;border-bottom:1px solid var(--line);font-size:.88rem}
+  .ts-row:last-child{border-bottom:none}
+  .ts-row>span{color:var(--muted);flex:0 0 40%}
+  .ts-row>b{color:var(--ink);text-align:right;font-family:ui-monospace,monospace;font-weight:600;word-break:break-word}
+  .ts-row.total{border-top:2px solid var(--navy);margin-top:.3rem;padding-top:.7rem}
+  .ts-row.total>b{font-family:var(--font-head);color:var(--navy);font-size:1.12rem}
+  .tc-done{margin-top:1.4rem}
 
   /* ===== UNDER CONSTRUCTION — delete this element + rule to remove ===== */
   #ucBadge{position:fixed;left:18px;bottom:18px;z-index:70;display:flex;align-items:center;gap:.5rem;background:#FAAF43;color:#3a2c00;font-weight:700;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:.5rem .9rem;border-radius:999px;box-shadow:0 10px 26px -12px rgba(0,0,0,.5)}
@@ -472,7 +554,7 @@
       <div class="eyebrow" id="contactEyebrow">Contact us</div>
       <h2 class="sec-title" id="contactTitle">Let's plan your trip.</h2>
       <p id="contactNote"></p>
-      <div class="ci"><b id="ciEmailL">Email</b><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2a424f4646456a4f525a4f4e434c5f4404494547">[email&#160;protected]</a></div>
+      <div class="ci"><b id="ciEmailL">Email</b><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7119141d1d1e3114090114151817041f5f121e1c">[email&#160;protected]</a></div>
       <div class="ci"><b id="ciPhoneL">Phone</b><br>+1 (829) 000-0000</div>
     </div>
     <form class="cf" id="contactForm" onsubmit="return false">
@@ -660,9 +742,11 @@ function renderLocation(){
 
   // gallery slots
   const gg=document.getElementById("galGrid");gg.innerHTML="";
+  const galSrcs=galThemes.map((th,i)=>galPhoto(i));
   galThemes.forEach((th,i)=>{
     const cell=document.createElement("div");cell.className="cell";
-    cell.innerHTML=`<image-slot id="gal-${CURRENT}-${i}" shape="rounded" radius="14" placeholder="Drop a photo"></image-slot><span class="gal-cap">${t(th)}</span>`;
+    cell.innerHTML=`<div class="gal-ph ph-wrap" data-label="${t(th)}"><img src="${galPhoto(i)}" alt="${t(th)}" loading="lazy" onerror="efImg(this)"></div><span class="gal-cap">${t(th)}</span>`;
+    cell.addEventListener("click",()=>openLightbox(galSrcs,i,t(th)));
     gg.appendChild(cell);
   });
   updateFavCount();
@@ -680,7 +764,8 @@ function renderFavPanel(){
   if(!list.length){box.innerHTML='<p class="fav-empty">'+t("saved_empty")+'</p>';return;}
   list.forEach(id=>{const idx=parseInt(id.split("-")[1],10);const p=L.packages[idx];if(!p)return;
     const row=document.createElement("div");row.className="fav-row";
-    row.innerHTML=`<div><div class="fr-loc">${p.loc}</div><div class="fr-name">${p.name[LANG]}</div><div class="fr-price">${L.currency}${p.price} ${t('per')}</div></div>`+
+    row.innerHTML=`<div class="fr-main"><span class="fr-thumb"><img src="${tourPhoto(idx)}" alt="" loading="lazy" onerror="efImg(this)"></span>`+
+      `<div class="fr-text"><div class="fr-loc">${p.loc}</div><div class="fr-name">${p.name[LANG]}</div><div class="fr-price">${L.currency}${p.price} ${t('per')}</div></div></div>`+
       `<div class="fr-act"><a class="fr-req" data-buy="${id}">${t('request')}</a><button class="fr-rm" data-id="${id}">\u00d7</button></div>`;
     box.appendChild(row);});
   box.querySelectorAll(".fr-rm").forEach(b=>b.onclick=()=>{const l=getFavs().filter(n=>n!==b.dataset.id);localStorage.setItem(favKey(),JSON.stringify(l));renderLocation();renderFavPanel();});
@@ -730,11 +815,75 @@ function efImg(img){
 }
 function tourDir(idx){return "assets/photos/tours/"+CURRENT+"/"+pad2(idx+1)+"/";}
 function tourPhoto(idx){return tourDir(idx)+"01.jpg";}
+/* operator-defined departure slots (the customer picks one; transfers set their own time) */
+const TOUR_SLOTS=[["08:00","13:00"],["07:30","10:30","15:00"],["09:00","14:00"],["08:00","11:00","16:00"],["06:30","09:30"],["09:30","18:30"]];
+function tourTimes(idx){const p=(LOCATIONS[CURRENT].packages[idx]||{});return p.times||TOUR_SLOTS[idx%TOUR_SLOTS.length];}
+function fmtTime(s){const[h,m]=s.split(":").map(Number);const ap=h<12?"AM":"PM";const hh=((h+11)%12)+1;return hh+":"+String(m).padStart(2,"0")+" "+ap;}
+/* free, keyless maps: Leaflet + OpenStreetMap tiles, Nominatim geocoding, OSRM routing (draws the route path) */
+function placeCtx(){return (LOCATIONS[CURRENT]&&LOCATIONS[CURRENT].place&&LOCATIONS[CURRENT].place.en)||"";}
+async function geocode(q){
+  if(!q)return null;
+  const url="https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q+", "+placeCtx());
+  try{const r=await fetch(url,{headers:{Accept:"application/json"}});const j=await r.json();
+    if(j&&j[0])return [parseFloat(j[0].lat),parseFloat(j[0].lon)];}catch(e){}
+  return null;
+}
+async function osrmRoute(a,b){ /* a,b = [lat,lon] */
+  const url="https://router.project-osrm.org/route/v1/driving/"+a[1]+","+a[0]+";"+b[1]+","+b[0]+"?overview=full&geometries=geojson";
+  try{const r=await fetch(url);const j=await r.json();if(j&&j.routes&&j.routes[0])return j.routes[0];}catch(e){}
+  return null;
+}
+function gmLink(from,to){const c=", "+placeCtx();
+  if(from&&to)return "https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(from+c)+"&destination="+encodeURIComponent(to+c);
+  return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((to||from||"")+c);}
+/* shared cache + fullscreen map modal (works for both tours & transfers) */
+let MAP_CACHE={}, bigMap=null;
+function openMapBig(){
+  const c=MAP_CACHE; if(!c||(!c.pa&&!c.pb))return;
+  let ov=document.getElementById("mapbig");
+  if(!ov){
+    ov=document.createElement("div"); ov.id="mapbig"; ov.className="mapbig";
+    ov.innerHTML='<div class="mapbig-bar"><div class="mapbig-route"><span class="mb-a"></span><span class="mb-arrow">→</span><span class="mb-b"></span><span class="mapbig-dur"></span></div><button class="mapbig-x" aria-label="Close">×</button></div><div id="mapbigCanvas" class="mapbig-canvas"></div>';
+    document.body.appendChild(ov);
+    ov.querySelector(".mapbig-x").addEventListener("click",closeMapBig);
+    ov.addEventListener("click",e=>{if(e.target===ov)closeMapBig();});
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ov.classList.contains("show"))closeMapBig();});
+  }
+  ov.querySelector(".mb-a").textContent=c.from||"";
+  ov.querySelector(".mb-b").textContent=c.to||"";
+  ov.querySelector(".mb-arrow").style.display=(c.from&&c.to)?"":"none";
+  ov.querySelector(".mapbig-dur").textContent=c.dur||"";
+  ov.classList.add("show");
+  if(!bigMap){ bigMap=L.map("mapbigCanvas",{attributionControl:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(bigMap); }
+  bigMap._eflayers=bigMap._eflayers||[]; bigMap._eflayers.forEach(l=>bigMap.removeLayer(l)); bigMap._eflayers=[];
+  const pin=(col)=>L.divIcon({className:"map-pin",html:`<span style="background:${col}"></span>`,iconSize:[18,18],iconAnchor:[9,9]});
+  setTimeout(()=>{ bigMap.invalidateSize();
+    if(c.pa)bigMap._eflayers.push(L.marker(c.pa,{icon:pin("#00407A")}).addTo(bigMap));
+    if(c.pb)bigMap._eflayers.push(L.marker(c.pb,{icon:pin("#00B3AB")}).addTo(bigMap));
+    if(c.coords){const pl=L.polyline(c.coords,{color:"#00407A",weight:5,opacity:.85}).addTo(bigMap);bigMap._eflayers.push(pl);bigMap.fitBounds(pl.getBounds().pad(0.12));}
+    else if(c.pa&&c.pb){bigMap.fitBounds(L.latLngBounds([c.pa,c.pb]).pad(0.25));}
+    else if(c.pa||c.pb){bigMap.setView(c.pa||c.pb,14);}
+  },80);
+}
+function closeMapBig(){const ov=document.getElementById("mapbig");if(ov)ov.classList.remove("show");}
+const PAY_ICONS=`<div class="pay-methods" aria-label="Accepted payment methods">
+  <span class="pm-ic pm-visa">VISA</span>
+  <span class="pm-ic pm-mc"><svg viewBox="0 0 40 24" aria-label="Mastercard"><circle cx="16" cy="12" r="9" fill="#EB001B"/><circle cx="24" cy="12" r="9" fill="#F79E1B"/><path d="M20 5.1a9 9 0 0 0 0 13.8 9 9 0 0 0 0-13.8z" fill="#FF5F00"/></svg></span>
+  <span class="pm-ic pm-amex">AMEX</span>
+  <span class="pm-ic pm-pp"><span class="pp-a">Pay</span><span class="pp-b">Pal</span></span>
+  <span class="pm-ic pm-apple"><svg viewBox="0 0 814 1000" aria-label="Apple Pay"><path fill="#000" d="M788 340c-6 4-114 65-114 199 0 155 136 210 140 211-1 3-22 74-72 147-44 64-90 128-160 128s-88-41-169-41c-79 0-107 42-171 42s-109-59-160-131C-9 770-65 558 21 414c43-71 120-116 203-117 66-1 124 45 169 45 43 0 114-45 192-45 30 0 138 3 209 105zM560 154c35-42 60-100 60-158 0-8-1-16-2-23-57 2-125 38-165 86-32 36-62 94-62 153 0 9 2 18 2 21 4 1 9 1 14 1 51 0 115-34 153-80z"/></svg>Pay</span>
+  <span class="pm-ic pm-gpay"><span class="g-b">G</span><span class="g-r">o</span><span class="g-y">o</span><span class="g-b">g</span><span class="g-g">l</span><span class="g-r">e</span> Pay</span>
+</div>`;
 function tourPhotos(idx,n){const d=tourDir(idx),a=[];for(let i=1;i<=(n||TOUR_PHOTOS);i++)a.push(d+pad2(i)+".jpg");return a;}
 function vehDir(id,vk){return "assets/photos/transfers/"+CURRENT+"/"+id+"/"+vk+"/";}
 function vehPhotos(id,vk,n){const d=vehDir(id,vk),a=[];for(let i=1;i<=(n||VEH_PHOTOS);i++)a.push(d+pad2(i)+".jpg");return a;}
 function transferCover(id){return vehDir(id,"sedan")+"01.jpg";}
 function fleetPreview(id){return VEH_KEYS.map(vk=>vehDir(id,vk)+"01.jpg");}
+/* discover gallery — one photo per theme, dropped into assets/photos/gallery/<dest>/<slug>.jpg */
+const GAL_SLUGS=["beaches","culture","food","nature","nightlife","people"];
+function galDir(){return "assets/photos/gallery/"+CURRENT+"/";}
+function galPhoto(i){return galDir()+GAL_SLUGS[i]+".jpg";}
 
 /* ---------- transfers ---------- */
 function renderTransfers(){
@@ -756,22 +905,25 @@ function renderTransfers(){
 }
 function openOperator(id){
   const op=(TRANSFERS[CURRENT]||[]).find(o=>o.id===id); if(!op) return;
-  const fleet=op.fleet.map(f=>`<span class="op-chip">${f[LANG]}</span>`).join("");
+  const otherLabel=LANG==='es'?'Otra dirección':'Other address';
+  const otherHint=LANG==='es'?'Indica tu recogida y destino':'Set your own pickup & destination';
+  const otherSub=LANG==='es'?'Precio confirmado por el operador':'Price confirmed by operator';
   const routes=op.routes.map((r,ri)=>`<div class="op-route"><div class="orinfo"><div class="orr">${r.from}</div><div class="ord">→ ${r.to}</div></div>`+
     `<div class="orp"><b>${op.currency}${r.price}</b><span>${t('tr_oneway')}${r.min&&r.min!=='—'?' · '+r.min+' min':''}</span></div>`+
-    `<button class="op-bookbtn" data-ri="${ri}">${t('request')}</button></div>`).join("");
+    `<button class="op-bookbtn" data-ri="${ri}">${t('request')}</button></div>`).join("")+
+    `<div class="op-route op-route-other"><div class="orinfo"><div class="orr">${otherLabel}</div><div class="ord">${otherHint}</div></div>`+
+    `<div class="orp"><span>${otherSub}</span></div>`+
+    `<button class="op-bookbtn op-book-other" type="button">${t('request')}</button></div>`;
   openModal(`<div class="op-modal">
       <div class="op-banner ph-wrap" data-label="${op.name}"><img src="${transferCover(op.id)}" alt="${op.name}" loading="lazy" onerror="efImg(this)"><span class="op-bannerflag">${op.flag}</span></div>
       <div class="op-body">
         <div class="op-hero"><div><h3>${op.name}</h3><p>${op.tagline[LANG]}</p></div></div>
         <div class="op-stats"><div><b>${op.rating}★</b><span>${t('op_rating')}</span></div><div><b>${op.trips}</b><span>${t('op_trips')}</span></div></div>
-        <div class="op-block"><h4>${t('op_fleet')}</h4><div class="op-gallery">${VEH_KEYS.map((vk,i)=>`<button class="op-shot ph-wrap" data-vk="${vk}" data-label="${VEH_NAMES[i][LANG]}"><img src="${vehDir(op.id,vk)+'01.jpg'}" alt="" loading="lazy" onerror="efImg(this)"><span class="op-shot-cap">${VEH_NAMES[i][LANG]}</span></button>`).join("")}</div></div>
-        <div class="op-block"><h4>${t('op_fleet')}</h4><div class="op-chips">${fleet}</div></div>
         <div class="op-block"><h4>${t('op_routes')}</h4><p class="op-booknote">${t('op_book_note')}</p><div class="op-routes">${routes}</div></div>
       </div>
     </div>`);
-  document.querySelectorAll(".op-bookbtn").forEach(b=>b.addEventListener("click",()=>openPurchaseTransfer(op.id,parseInt(b.dataset.ri,10))));
-  document.querySelectorAll("#modalCard .op-shot").forEach(b=>b.addEventListener("click",()=>openLightbox(vehPhotos(op.id,b.dataset.vk),0,op.name+" · "+b.dataset.label)));
+  document.querySelectorAll("#modalCard .op-route:not(.op-route-other) .op-bookbtn").forEach(b=>b.addEventListener("click",()=>openPurchaseTransfer(op.id,parseInt(b.dataset.ri,10),0)));
+  const ob=document.querySelector("#modalCard .op-book-other"); if(ob)ob.addEventListener("click",()=>openPurchaseTransfer(op.id,0,0,true));
   const banner=document.querySelector("#modalCard .op-banner");
   if(banner){banner.style.cursor="zoom-in";banner.addEventListener("click",()=>openLightbox(vehPhotos(op.id,"sedan"),0,op.name));}
 }
@@ -799,20 +951,17 @@ function openAuth(mode){
 /* ---------- purchase modal (Viator-style) ---------- */
 function openPurchaseTour(idx){
   const L=LOCATIONS[CURRENT]; const p=L.packages[idx]; if(!p) return;
-  buildPurchase({type:"tour",imgId:"buy-"+CURRENT+"-"+idx,title:p.name[LANG],loc:p.loc,desc:p.desc[LANG],unit:parseFloat(p.price),currency:L.currency,photoLabel:p.loc,photos:tourPhotos(idx)});
+  buildPurchase({type:"tour",imgId:"buy-"+CURRENT+"-"+idx,title:p.name[LANG],flag:L.flag,loc:p.loc,desc:p.desc[LANG],unit:parseFloat(p.price),currency:L.currency,photoLabel:p.loc,photos:tourPhotos(idx),times:tourTimes(idx)});
 }
-function openPurchaseTransfer(opId,ri){
+function openPurchaseTransfer(opId,ri,vIdx,custom){
   const op=(TRANSFERS[CURRENT]||[]).find(o=>o.id===opId); if(!op) return;
   const r=op.routes[ri]; if(!r) return;
-  buildPurchase({type:"transfer",imgId:"buy-tr-"+opId,title:op.name,loc:r.from+"  →  "+r.to,desc:op.tagline[LANG],unit:parseFloat(r.price),currency:op.currency,photoLabel:op.name,route:r,photos:transferPhotos(opId)});
-}
-function openPurchaseTransfer(opId,ri){
-  const op=(TRANSFERS[CURRENT]||[]).find(o=>o.id===opId); if(!op) return;
-  const r=op.routes[ri]; if(!r) return;
-  const photos=vehPhotos(opId,"sedan");           /* default cover = sedan set */
   const mults=[1,1.3,1.7];
   const vehicles=op.fleet.map((f,i)=>({label:f[LANG],short:VEH_NAMES[i]?VEH_NAMES[i][LANG]:f[LANG],mult:mults[i]||1,photo:vehPhotos(opId,VEH_KEYS[i])[0],photos:vehPhotos(opId,VEH_KEYS[i])}));
-  buildPurchase({type:"transfer",imgId:"buy-tr-"+opId,title:op.name,loc:r.from+"  →  "+r.to,desc:op.tagline[LANG],currency:op.currency,photoLabel:op.name,photos,vehicles,routes:op.routes,routeIdx:ri,baseUnit:parseFloat(r.price)});
+  const init=Math.max(0,Math.min(vehicles.length-1,parseInt(vIdx,10)||0));
+  const photos=vehPhotos(opId,VEH_KEYS[init]||"sedan");
+  const loc=custom?(LANG==='es'?'Dirección personalizada':'Custom address'):(r.from+"  →  "+r.to);
+  buildPurchase({type:"transfer",imgId:"buy-tr-"+opId,title:op.name,flag:op.flag,opId:opId,customRoute:!!custom,loc,desc:op.tagline[LANG],currency:op.currency,photoLabel:op.name,photos,vehicles,vehInit:init,routes:op.routes,routeIdx:ri,baseUnit:parseFloat(r.price)});
 }
 function buildPurchase(o){
   const isT=o.type==="transfer";
@@ -821,17 +970,25 @@ function buildPurchase(o){
   let vehBlock="", routeBlock="";
   if(isT){
     vehBlock=`<div class="buy-veh"><label>${LANG==='es'?'Vehículo':'Vehicle'}</label><div class="veh-opts">`+
-      o.vehicles.map((v,i)=>`<button type="button" class="veh-opt${i===0?' on':''}" data-i="${i}"><span class="veh-thumb ph-wrap" data-label="${i+2}"><img src="${v.photo}" alt="" loading="lazy" onerror="efImg(this)"></span><span class="veh-name">${v.short}</span><span class="veh-price">${o.currency}${round(o.baseUnit*v.mult)}</span></button>`).join("")+
+      o.vehicles.map((v,i)=>`<button type="button" class="veh-opt${i===(o.vehInit||0)?' on':''}" data-i="${i}"><span class="veh-thumb ph-wrap" data-label="${i+2}"><img src="${v.photo}" alt="" loading="lazy" onerror="efImg(this)"></span><span class="veh-name">${v.short}</span><span class="veh-price">${o.currency}${round(o.baseUnit*v.mult)}</span></button>`).join("")+
       `</div></div>`;
     routeBlock=`<div class="buy-route"><label>${LANG==='es'?'Ruta':'Route'}</label>`+
       `<select id="buyRoute">${o.routes.map((r,i)=>`<option value="${i}"${i===o.routeIdx?' selected':''}>${r.from} → ${r.to}</option>`).join("")}<option value="custom">${LANG==='es'?'Otra dirección…':'Other address…'}</option></select>`+
       `<div id="customRoute" style="display:none;margin-top:.6rem"><div class="cf-row"><div><label>${t('tf_from')}</label><input id="cFrom" type="text"></div><div><label>${t('tf_to')}</label><input id="cTo" type="text"></div></div><div class="buy-foot" style="text-align:left;margin-top:.3rem">${LANG==='es'?'Precio final confirmado por el operador.':'Final price confirmed by the operator.'}</div></div></div>`;
   }
-  const fields=isT
-    ? `<div class="cf-row"><div><label>${t('pm_date')}</label><input type="date"></div><div><label>${t('pm_time')}</label><input type="time"></div></div>
-       <div class="cf-row"><div><label>${qtyLabel}</label><input type="number" id="buyQty" min="1" value="2"></div><div><label>${t('pm_flight')}</label><input type="text" placeholder="AA1234"></div></div>`
-    : `<div class="cf-row"><div><label>${t('pm_date')}</label><input type="date"></div><div><label>${qtyLabel}</label><input type="number" id="buyQty" min="1" value="2"></div></div>`;
-  const startUnit=isT?round(o.baseUnit*o.vehicles[0].mult):o.unit;
+  const detailsBlock=`
+       <div class="buy-dethead">${isT?t('tf_details'):t('bk_details')}</div>
+       <div class="cf-row"><div><label>${t('tf_first')}</label><input type="text" id="trFirst" placeholder="${LANG==='es'?'Nombre':'First name'}"></div><div><label>${t('tf_last')}</label><input type="text" id="trLast" placeholder="${LANG==='es'?'Apellido':'Last name'}"></div></div>
+       <div class="cf-row"><div><label>${t('tf_email')}</label><input type="email" id="trEmail" placeholder="you@email.com"></div><div><label>${t('tf_phone')}</label><input type="tel" id="trPhone" placeholder="+1 555 000 0000"></div></div>
+       <div class="cf-row"><div><label>${t('tf_country')}</label><input type="text" id="trCountry" placeholder="${LANG==='es'?'p. ej. Estados Unidos':'e.g. United States'}"></div><div><label>${isT?t('tf_hotel'):t('bk_hotel')}</label><input type="text" id="trHotel" placeholder="${LANG==='es'?'Hotel / punto de recogida':'Hotel / pickup point'}"></div></div>
+       <div><label>${t('tf_notes')}</label><input type="text" id="trNotes" placeholder="${LANG==='es'?'Restricciones, idioma, silla de niño…':'Restrictions, language, child seat…'}"></div>`;
+  const timeField=isT
+    ? `<label>${t('pm_time')}</label><input type="time" id="trTime">`
+    : `<label>${t('pm_departure')}</label><select id="trTime">${(o.times||[]).map((s,i)=>`<option value="${s}"${i===0?' selected':''}>${fmtTime(s)}</option>`).join("")}</select><div class="buy-slotnote">${t('pm_dep_note')}</div>`;
+  const topRows=`<div class="cf-row"><div><label>${t('pm_date')}</label><input type="date" id="trDate"></div><div>${timeField}</div></div>
+       <div class="cf-row"><div><label>${qtyLabel}</label><input type="number" id="buyQty" min="1" value="2"></div><div><label>${t('pm_flight')}</label><input type="text" id="trFlight" placeholder="AA1234"></div></div>`;
+  const fields=topRows+detailsBlock;
+  const startUnit=isT?round(o.baseUnit*o.vehicles[o.vehInit||0].mult):o.unit;
   openModal(`<div class="buy-grid">
       <div class="buy-media">
         <button class="buy-cover ph-wrap" type="button" data-label="${o.photoLabel}"><img id="buyCoverImg" src="${(o.photos&&o.photos[0])||''}" alt="${o.title}" loading="lazy" onerror="efImg(this)">
@@ -839,17 +996,24 @@ function buildPurchase(o){
           <div class="buy-media-cap"><div class="buy-loc" id="buyLoc">${o.loc}</div><h3>${o.title}</h3></div></button>
       </div>
       <div class="buy-panel">
+        ${isT&&o.opId?`<button type="button" class="buy-back" id="buyBack"><span>‹</span> ${LANG==='es'?'Volver al operador':'Back to operator'}</button>`:''}
         <div class="buy-rating">★ ${isT?'4.8':'4.9'} · 1,2k ${t('pm_reviews')}</div>
         ${o.desc?`<p class="buy-desc">${o.desc}</p>`:''}
         ${vehBlock}
         ${routeBlock}
         <div class="buy-fields">${fields}</div>
+        <div class="buy-map" id="buyMapWrap" style="display:none">
+          <div class="buy-maplabel">${t('map_title')}<span class="buy-map-dur" id="buyMapDur"></span></div>
+          <div class="buy-map-frame"><div id="buyMap" class="buy-map-canvas"></div><button type="button" class="buy-map-expand" id="buyMapExpand" title="${t('map_expand')}" aria-label="${t('map_expand')}" style="display:none">⤢</button><div class="buy-map-load" id="buyMapLoad"></div></div>
+          <div class="buy-map-foot"><span class="buy-map-hint" id="buyMapHint"></span><a class="buy-map-link" id="buyMapLink" target="_blank" rel="noopener">${t('map_open')} ↗</a></div>
+        </div>
         <div class="buy-summary">
           <div class="row"><span><span id="sumUnit">${o.currency}${startUnit}</span> × <i id="sumQ">2</i></span><b id="sumSub"></b></div>
           <div class="row"><span>${t('pm_taxes')} (18%)</span><b id="sumTax"></b></div>
           <div class="row total"><span>${t('pm_total')}</span><b id="sumTot"></b></div>
         </div>
         <div class="buy-payrow"><label>${t('pm_payment')}</label>
+          ${PAY_ICONS}
           <div class="cc"><input placeholder="${t('pm_card')}"><input placeholder="MM/YY"><input placeholder="CVC"></div></div>
         <button class="buy-pay">${t('pm_pay')}</button>
         <div class="buy-foot">🔒 ${t('pm_secure')}</div>
@@ -866,10 +1030,65 @@ function wirePurchase(o){
   const qty=card.querySelector("#buyQty");
   const sub=card.querySelector("#sumSub"),tax=card.querySelector("#sumTax"),tot=card.querySelector("#sumTot"),sq=card.querySelector("#sumQ"),uEl=card.querySelector("#sumUnit");
   const coverImg=card.querySelector("#buyCoverImg");
-  const state={unit:isT?round(o.baseUnit*o.vehicles[0].mult):o.unit, baseUnit:o.baseUnit, vehIdx:0, photos:(o.photos||[]).slice()};
+  const state={unit:isT?round(o.baseUnit*o.vehicles[o.vehInit||0].mult):o.unit, baseUnit:o.baseUnit, vehIdx:(o.vehInit||0), photos:(o.photos||[]).slice()};
   function recalc(){let n=Math.max(1,parseInt((qty&&qty.value)||"1",10));const s=state.unit*n,x=s*0.18,tt=s+x;
     if(sq)sq.textContent=n; if(uEl)uEl.textContent=o.currency+round(state.unit); sub.textContent=o.currency+round(s); tax.textContent=o.currency+round(x); tot.textContent=o.currency+round(tt);}
   if(qty)qty.addEventListener("input",recalc);
+  const val=id=>{const el=card.querySelector("#"+id);return el?el.value.trim():"";};
+  let lmap=null, lroute=null, lmarkers=[], mapToken=0;
+  function ensureMap(){
+    const el=card.querySelector("#buyMap"); if(!el||typeof L==="undefined")return null;
+    if(!lmap){ lmap=L.map(el,{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(lmap);
+      lmap.setView([18.5,-69.9],8); }
+    return lmap;
+  }
+  function pin(label,color){return L.divIcon({className:"map-pin",html:`<span style="background:${color}"></span>`,iconSize:[16,16],iconAnchor:[8,8]});}
+  async function updateMap(){
+    const wrap=card.querySelector("#buyMapWrap"); if(!wrap) return;
+    let from="",to="",fb="",needVar=false;
+    if(isT){
+      const rsel=card.querySelector("#buyRoute");
+      if(rsel&&rsel.value==="custom"){ from=val("cFrom"); to=val("cTo"); needVar=!(from&&to); }
+      else {
+        /* same pattern as tours: a fixed geocodable anchor (the operator's airport/point)
+           + the customer's typed hotel. We ignore the vague zone string so OSRM always routes. */
+        const r=(rsel?o.routes[+rsel.value]:null)||o.routes[0];
+        from=r.from; to=val("trHotel"); needVar=!to;
+      }
+    } else { from=val("trHotel"); to=o.loc; needVar=!from; }
+    const hintEl=card.querySelector("#buyMapHint"), durEl=card.querySelector("#buyMapDur"), loadEl=card.querySelector("#buyMapLoad");
+    const expBtn=card.querySelector("#buyMapExpand");
+    if(!from&&!to){ wrap.style.display="none"; return; }
+    wrap.style.display="block";
+    card.querySelector("#buyMapLink").href=gmLink(from,to);
+    if(hintEl){ hintEl.textContent=needVar?t('map_pickup'):""; hintEl.style.display=needVar?"":"none"; }
+    const map=ensureMap(); if(!map)return;
+    setTimeout(()=>map.invalidateSize(),60);
+    const token=++mapToken;
+    if(loadEl)loadEl.style.display="flex";
+    if(durEl){durEl.textContent=fb;durEl.style.display=fb?"":"none";}
+    /* clear previous overlays */
+    if(lroute){map.removeLayer(lroute);lroute=null;} lmarkers.forEach(m=>map.removeLayer(m)); lmarkers=[];
+    MAP_CACHE={from,to,pa:null,pb:null,coords:null,dur:fb};
+    const [pa,pb]=await Promise.all([geocode(from),geocode(to)]);
+    if(token!==mapToken)return; /* stale */
+    MAP_CACHE.pa=pa; MAP_CACHE.pb=pb;
+    if(pa){lmarkers.push(L.marker(pa,{icon:pin(from,"#00407A")}).addTo(map));}
+    if(pb){lmarkers.push(L.marker(pb,{icon:pin(to,"#00B3AB")}).addTo(map));}
+    if(pa&&pb){
+      const rt=await osrmRoute(pa,pb); if(token!==mapToken)return;
+      if(rt&&rt.geometry){
+        const coords=rt.geometry.coordinates.map(c=>[c[1],c[0]]);
+        MAP_CACHE.coords=coords;
+        lroute=L.polyline(coords,{color:"#00407A",weight:4,opacity:.85}).addTo(map);
+        map.fitBounds(lroute.getBounds().pad(0.18));
+        if(durEl){const mins=Math.round(rt.duration/60);MAP_CACHE.dur="≈ "+mins+" min";durEl.textContent=MAP_CACHE.dur;durEl.style.display="";}
+      } else { map.fitBounds(L.latLngBounds([pa,pb]).pad(0.3)); }
+    } else if(pa||pb){ map.setView(pa||pb,13); }
+    if(expBtn)expBtn.style.display=(pa||pb)?"":"none";
+    if(loadEl)loadEl.style.display="none";
+  }
   if(isT){
     const opts=card.querySelectorAll(".veh-opt");
     opts.forEach(b=>b.addEventListener("click",()=>{
@@ -884,13 +1103,79 @@ function wirePurchase(o){
     if(rsel)rsel.addEventListener("change",()=>{
       if(rsel.value==="custom"){ if(custom)custom.style.display="block"; if(locEl)locEl.textContent=(LANG==='es'?'Dirección personalizada':'Custom address'); }
       else { if(custom)custom.style.display="none"; const r=o.routes[+rsel.value]; state.baseUnit=parseFloat(r.price); if(locEl)locEl.textContent=r.from+"  →  "+r.to; state.unit=round(state.baseUnit*o.vehicles[state.vehIdx].mult); recalc(); }
+      updateMap();
     });
+    const cf=card.querySelector("#cFrom"),ct=card.querySelector("#cTo");
+    [cf,ct].forEach(el=>{if(el)el.addEventListener("change",updateMap);});
+    const thot=card.querySelector("#trHotel");
+    if(thot)thot.addEventListener("change",updateMap);
+    if(o.customRoute&&rsel){ rsel.value="custom"; rsel.dispatchEvent(new Event("change")); }
+  } else {
+    const hotel=card.querySelector("#trHotel");
+    if(hotel)hotel.addEventListener("change",updateMap);
   }
+  const back=card.querySelector("#buyBack");
+  if(back&&o.opId)back.addEventListener("click",()=>openOperator(o.opId));
+  const expBtn=card.querySelector("#buyMapExpand");
+  if(expBtn)expBtn.addEventListener("click",e=>{e.stopPropagation();openMapBig();});
   recalc();
+  updateMap();
   const cover=card.querySelector(".buy-cover");
   if(cover)cover.addEventListener("click",()=>openLightbox(state.photos,0,o.photoLabel));
   const pay=card.querySelector(".buy-pay"),panel=card.querySelector(".buy-panel");
-  if(pay)pay.addEventListener("click",()=>{panel.classList.add("done");pay.textContent="✓";});
+  if(pay)pay.addEventListener("click",()=>confirmBooking(card,o,state));
+}
+
+/* ---------- booking confirmation = operator trip / booking sheet (manifiesto) ---------- */
+function confirmBooking(card,o,state){
+  const isT=o.type==="transfer";
+  const val=id=>{const el=card.querySelector("#"+id);return el?el.value.trim():"";};
+  /* require lead-traveler identity + contact so the operator's sheet is actionable */
+  let firstBad=null;
+  ["trFirst","trLast","trEmail","trPhone"].forEach(id=>{
+    const el=card.querySelector("#"+id);
+    if(el){ if(!el.value.trim()){ el.classList.add("err"); if(!firstBad)firstBad=el; } else el.classList.remove("err"); }
+  });
+  if(firstBad){ firstBad.focus(); return; }
+  const name=[val("trFirst"),val("trLast")].filter(Boolean).join(" ");
+  const rawTime=val("trTime");
+  const showTime=(!isT&&rawTime)?fmtTime(rawTime):rawTime;
+  const when=[val("trDate"),showTime].filter(Boolean).join(" · ");
+  const total=(card.querySelector("#sumTot")||{}).textContent||"";
+  const ref="EF-"+(new Date().getFullYear())+"-"+Math.random().toString(36).slice(2,7).toUpperCase();
+  const row=(l,v)=>v?`<div class="ts-row"><span>${l}</span><b>${v}</b></div>`:"";
+  let pickup="",dest="",veh="";
+  if(isT){
+    const rsel=card.querySelector("#buyRoute");
+    if(rsel&&rsel.value==="custom"){ pickup=val("cFrom"); dest=val("cTo"); }
+    else if(rsel){ const r=o.routes[+rsel.value]||o.routes[0]; pickup=r.from; dest=r.to; }
+    else if(o.routes&&o.routes[0]){ pickup=o.routes[0].from; dest=o.routes[0].to; }
+    veh=o.vehicles[state.vehIdx]?o.vehicles[state.vehIdx].label:"";
+  }
+  const d={flag:o.flag||"",name,phone:val("trPhone"),email:val("trEmail"),country:val("trCountry"),
+    hotel:val("trHotel"),when,flight:val("trFlight"),pax:val("buyQty")||"—",notes:val("trNotes"),ref,total};
+  const sheetRows=isT
+    ? row(t('mf_passenger'),d.name)+row(t('tf_phone'),d.phone)+row(t('tf_email'),d.email)+row(t('tf_country'),d.country)
+      +row(t('tf_from'),pickup)+row(t('tf_to'),dest)+row(t('tf_hotel'),d.hotel)+row(t('mf_pickup_dt'),d.when)
+      +row(t('tf_flight'),d.flight)+row(t('tf_pax'),d.pax)+row(t('mf_vehicle'),veh)+row(t('tf_notes'),d.notes)+row(t('mf_ref'),d.ref)
+    : row(t('mf_passenger'),d.name)+row(t('tf_phone'),d.phone)+row(t('tf_email'),d.email)+row(t('tf_country'),d.country)
+      +row(t('mf_tour'),o.title)+row(t('mf_service_dt'),d.when)+row(t('mf_travelers'),d.pax)+row(t('bk_hotel'),d.hotel)
+      +row(t('tf_flight'),d.flight)+row(t('tf_notes'),d.notes)+row(t('mf_ref'),d.ref);
+  openModal(`<div class="tc-wrap">
+    <div class="tc-check">✓</div>
+    <h3 class="tc-title">${isT?t('mf_done_title'):t('mf_booking_title')}</h3>
+    <p class="tc-sub">${t('mf_email_copy')}</p>
+    <div class="ts-card">
+      <div class="ts-head"><span class="ts-flag">${d.flag}</span><div class="ts-headtext"><div class="ts-sheet">${isT?t('mf_sheet'):t('mf_sheet_b')}</div><div class="ts-op">${t('mf_sent')} ${o.title}</div></div><span class="ts-auto">AUTO</span></div>
+      <div class="ts-body">
+        ${sheetRows}
+        <div class="ts-row total"><span>${t('mf_paid')}</span><b>${d.total}</b></div>
+      </div>
+    </div>
+    <button class="buy-pay tc-done">${t('mf_close')}</button>
+  </div>`, false);
+  const done=document.querySelector("#modalCard .tc-done");
+  if(done)done.addEventListener("click",closeModal);
 }
 
 /* ---------- lightbox / gallery (over the open purchase modal) ---------- */
