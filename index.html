@@ -472,7 +472,7 @@
       <div class="eyebrow" id="contactEyebrow">Contact us</div>
       <h2 class="sec-title" id="contactTitle">Let's plan your trip.</h2>
       <p id="contactNote"></p>
-      <div class="ci"><b id="ciEmailL">Email</b><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c1a9a4adadae81a4b9b1a4a5a8a7b4afefa2aeac">[email&#160;protected]</a></div>
+      <div class="ci"><b id="ciEmailL">Email</b><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2a424f4646456a4f525a4f4e434c5f4404494547">[email&#160;protected]</a></div>
       <div class="ci"><b id="ciPhoneL">Phone</b><br>+1 (829) 000-0000</div>
     </div>
     <form class="cf" id="contactForm" onsubmit="return false">
@@ -650,7 +650,7 @@ function renderLocation(){
   L.packages.forEach((p,idx)=>{
     const id=CURRENT+"-"+idx, on=saved.includes(id);
     const c=document.createElement("article");c.className="card";
-    c.innerHTML=`<div class="card-media"><img src="${tourPhoto(idx)}" alt="${p.name[LANG]}" loading="lazy" onerror="this.remove()"><button class="fav ${on?'on':''}" data-id="${id}" aria-label="${t('request')}">${heartSVG}</button><span class="ph">photo · ${p.loc}</span></div>
+    c.innerHTML=`<div class="card-media"><img src="${tourPhoto(idx)}" alt="${p.name[LANG]}" loading="lazy" onerror="efImg(this)"><button class="fav ${on?'on':''}" data-id="${id}" aria-label="${t('request')}">${heartSVG}</button><span class="ph">photo · ${p.loc}</span></div>
       <div class="card-body"><div class="card-loc">${p.loc}</div><div class="card-name">${p.name[LANG]}</div><div class="card-desc">${p.desc[LANG]}</div>
       <div class="card-foot"><div class="price">${t('from')} <b>${L.currency}${p.price}</b> ${t('per')}</div><span class="card-cta">${t('request')} →</span></div></div>`;
     c.addEventListener("click",e=>{if(e.target.closest(".fav"))return;openPurchaseTour(idx);});
@@ -719,6 +719,15 @@ const pad2=n=>String(n).padStart(2,"0");
 const TOUR_PHOTOS=4, VEH_PHOTOS=4;
 const VEH_KEYS=["sedan","suv","van"];
 const VEH_NAMES=[{en:"Sedan",es:"Sedán"},{en:"SUV",es:"SUV"},{en:"Van",es:"Van"}];
+/* try multiple image extensions: jpg -> jpeg -> png -> webp, then show placeholder */
+const EF_EXTS=["jpg","jpeg","png","webp"];
+function efImg(img){
+  const cur=img.getAttribute("src")||"";
+  const m=cur.match(/^(.*)\.([A-Za-z0-9]+)(\?.*)?$/);
+  if(m){const base=m[1],ext=m[2].toLowerCase();let i=EF_EXTS.indexOf(ext);
+    if(i>-1&&i<EF_EXTS.length-1){img.setAttribute("src",base+"."+EF_EXTS[i+1]);return;}}
+  img.onerror=null; img.style.visibility="hidden";
+}
 function tourDir(idx){return "assets/photos/tours/"+CURRENT+"/"+pad2(idx+1)+"/";}
 function tourPhoto(idx){return tourDir(idx)+"01.jpg";}
 function tourPhotos(idx,n){const d=tourDir(idx),a=[];for(let i=1;i<=(n||TOUR_PHOTOS);i++)a.push(d+pad2(i)+".jpg");return a;}
@@ -734,7 +743,7 @@ function renderTransfers(){
   list.forEach(op=>{
     const fromPrice=op.routes.reduce((m,r)=>{const n=parseFloat(r.price);return isNaN(n)?m:Math.min(m,n);},Infinity);
     const card=document.createElement("article"); card.className="op-card"; card.setAttribute("data-op",op.id);
-    card.innerHTML=`<div class="op-media ph-wrap" data-label="${op.name}"><img src="${transferCover(op.id)}" alt="${op.name}" loading="lazy" onerror="this.remove()"><span class="op-flagbadge">${op.flag}</span></div>`+
+    card.innerHTML=`<div class="op-media ph-wrap" data-label="${op.name}"><img src="${transferCover(op.id)}" alt="${op.name}" loading="lazy" onerror="efImg(this)"><span class="op-flagbadge">${op.flag}</span></div>`+
       `<div class="op-content"><div class="op-top"><div><h3>${op.name}</h3>`+
       `<div class="op-rate"><b>${op.rating}★</b> · ${op.trips} ${t('op_trips')}</div></div></div>`+
       `<p class="op-tag">${op.tagline[LANG]}</p>`+
@@ -752,11 +761,11 @@ function openOperator(id){
     `<div class="orp"><b>${op.currency}${r.price}</b><span>${t('tr_oneway')}${r.min&&r.min!=='—'?' · '+r.min+' min':''}</span></div>`+
     `<button class="op-bookbtn" data-ri="${ri}">${t('request')}</button></div>`).join("");
   openModal(`<div class="op-modal">
-      <div class="op-banner ph-wrap" data-label="${op.name}"><img src="${transferCover(op.id)}" alt="${op.name}" loading="lazy" onerror="this.remove()"><span class="op-bannerflag">${op.flag}</span></div>
+      <div class="op-banner ph-wrap" data-label="${op.name}"><img src="${transferCover(op.id)}" alt="${op.name}" loading="lazy" onerror="efImg(this)"><span class="op-bannerflag">${op.flag}</span></div>
       <div class="op-body">
         <div class="op-hero"><div><h3>${op.name}</h3><p>${op.tagline[LANG]}</p></div></div>
         <div class="op-stats"><div><b>${op.rating}★</b><span>${t('op_rating')}</span></div><div><b>${op.trips}</b><span>${t('op_trips')}</span></div></div>
-        <div class="op-block"><h4>${t('op_fleet')}</h4><div class="op-gallery">${VEH_KEYS.map((vk,i)=>`<button class="op-shot ph-wrap" data-vk="${vk}" data-label="${VEH_NAMES[i][LANG]}"><img src="${vehDir(op.id,vk)+'01.jpg'}" alt="" loading="lazy" onerror="this.remove()"><span class="op-shot-cap">${VEH_NAMES[i][LANG]}</span></button>`).join("")}</div></div>
+        <div class="op-block"><h4>${t('op_fleet')}</h4><div class="op-gallery">${VEH_KEYS.map((vk,i)=>`<button class="op-shot ph-wrap" data-vk="${vk}" data-label="${VEH_NAMES[i][LANG]}"><img src="${vehDir(op.id,vk)+'01.jpg'}" alt="" loading="lazy" onerror="efImg(this)"><span class="op-shot-cap">${VEH_NAMES[i][LANG]}</span></button>`).join("")}</div></div>
         <div class="op-block"><h4>${t('op_fleet')}</h4><div class="op-chips">${fleet}</div></div>
         <div class="op-block"><h4>${t('op_routes')}</h4><p class="op-booknote">${t('op_book_note')}</p><div class="op-routes">${routes}</div></div>
       </div>
@@ -812,7 +821,7 @@ function buildPurchase(o){
   let vehBlock="", routeBlock="";
   if(isT){
     vehBlock=`<div class="buy-veh"><label>${LANG==='es'?'Vehículo':'Vehicle'}</label><div class="veh-opts">`+
-      o.vehicles.map((v,i)=>`<button type="button" class="veh-opt${i===0?' on':''}" data-i="${i}"><span class="veh-thumb ph-wrap" data-label="${i+2}"><img src="${v.photo}" alt="" loading="lazy" onerror="this.remove()"></span><span class="veh-name">${v.short}</span><span class="veh-price">${o.currency}${round(o.baseUnit*v.mult)}</span></button>`).join("")+
+      o.vehicles.map((v,i)=>`<button type="button" class="veh-opt${i===0?' on':''}" data-i="${i}"><span class="veh-thumb ph-wrap" data-label="${i+2}"><img src="${v.photo}" alt="" loading="lazy" onerror="efImg(this)"></span><span class="veh-name">${v.short}</span><span class="veh-price">${o.currency}${round(o.baseUnit*v.mult)}</span></button>`).join("")+
       `</div></div>`;
     routeBlock=`<div class="buy-route"><label>${LANG==='es'?'Ruta':'Route'}</label>`+
       `<select id="buyRoute">${o.routes.map((r,i)=>`<option value="${i}"${i===o.routeIdx?' selected':''}>${r.from} → ${r.to}</option>`).join("")}<option value="custom">${LANG==='es'?'Otra dirección…':'Other address…'}</option></select>`+
@@ -825,7 +834,7 @@ function buildPurchase(o){
   const startUnit=isT?round(o.baseUnit*o.vehicles[0].mult):o.unit;
   openModal(`<div class="buy-grid">
       <div class="buy-media">
-        <button class="buy-cover ph-wrap" type="button" data-label="${o.photoLabel}"><img id="buyCoverImg" src="${(o.photos&&o.photos[0])||''}" alt="${o.title}" loading="lazy" onerror="this.style.visibility='hidden'">
+        <button class="buy-cover ph-wrap" type="button" data-label="${o.photoLabel}"><img id="buyCoverImg" src="${(o.photos&&o.photos[0])||''}" alt="${o.title}" loading="lazy" onerror="efImg(this)">
           ${(o.photos&&o.photos.length>1)?`<span class="buy-more">${LANG==='es'?'Ver fotos':'View photos'} (${o.photos.length})</span>`:''}
           <div class="buy-media-cap"><div class="buy-loc" id="buyLoc">${o.loc}</div><h3>${o.title}</h3></div></button>
       </div>
@@ -910,10 +919,10 @@ function openLightbox(srcs,i,label){
 function lbRender(){
   const lb=document.getElementById("lightbox"); if(!lb) return;
   const img=lb.querySelector(".lb-stage img");
-  img.style.visibility="visible"; img.onerror=function(){this.style.visibility="hidden";};
+  img.style.visibility="visible"; img.onerror=function(){efImg(this);};
   img.src=lbSrcs[lbIdx]||"";
   const tw=lb.querySelector(".lb-thumbs");
-  tw.innerHTML=lbSrcs.map((s,i)=>`<button class="lb-thumb${i===lbIdx?' on':''}" data-i="${i}"><img src="${s}" alt="" onerror="this.remove()"></button>`).join("");
+  tw.innerHTML=lbSrcs.map((s,i)=>`<button class="lb-thumb${i===lbIdx?' on':''}" data-i="${i}"><img src="${s}" alt="" onerror="efImg(this)"></button>`).join("");
   tw.querySelectorAll(".lb-thumb").forEach(b=>b.addEventListener("click",()=>{lbIdx=+b.dataset.i;lbRender();}));
 }
 function lbNav(d){ if(!lbSrcs.length) return; lbIdx=(lbIdx+d+lbSrcs.length)%lbSrcs.length; lbRender(); }
