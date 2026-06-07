@@ -554,7 +554,7 @@
       <div class="eyebrow" id="contactEyebrow">Contact us</div>
       <h2 class="sec-title" id="contactTitle">Let's plan your trip.</h2>
       <p id="contactNote"></p>
-      <div class="ci"><b id="ciEmailL">Email</b><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7119141d1d1e3114090114151817041f5f121e1c">[email&#160;protected]</a></div>
+      <div class="ci"><b id="ciEmailL">Email</b><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c1a9a4adadae81a4b9b1a4a5a8a7b4afefa2aeac">[email&#160;protected]</a></div>
       <div class="ci"><b id="ciPhoneL">Phone</b><br>+1 (829) 000-0000</div>
     </div>
     <form class="cf" id="contactForm" onsubmit="return false">
@@ -745,7 +745,9 @@ function renderLocation(){
   const galSrcs=galThemes.map((th,i)=>galPhoto(i));
   galThemes.forEach((th,i)=>{
     const cell=document.createElement("div");cell.className="cell";
-    cell.innerHTML=`<div class="gal-ph ph-wrap" data-label="${t(th)}"><img src="${galPhoto(i)}" alt="${t(th)}" loading="lazy" onerror="efImg(this)"></div><span class="gal-cap">${t(th)}</span>`;
+    cell.innerHTML=`<div class="gal-ph ph-wrap" data-label="${t(th)}"><img src="${galDir()+GAL_SLUGS[i]}.jpg" alt="${t(th)}" loading="lazy" onerror="efImg(this)" onload="this.style.visibility='visible'" style="visibility:hidden"></div><span class="gal-cap">${t(th)}</span>`;
+    const img=cell.querySelector("img");
+    img.addEventListener("load",()=>{ galSrcs[i]=img.getAttribute("src"); });
     cell.addEventListener("click",()=>openLightbox(galSrcs,i,t(th)));
     gg.appendChild(cell);
   });
@@ -805,7 +807,7 @@ const TOUR_PHOTOS=4, VEH_PHOTOS=4;
 const VEH_KEYS=["sedan","suv","van"];
 const VEH_NAMES=[{en:"Sedan",es:"Sedán"},{en:"SUV",es:"SUV"},{en:"Van",es:"Van"}];
 /* try multiple image extensions: jpg -> jpeg -> png -> webp, then show placeholder */
-const EF_EXTS=["jpg","jpeg","png","webp"];
+const EF_EXTS=["jpg","jpeg","png","webp","avif"];
 function efImg(img){
   const cur=img.getAttribute("src")||"";
   const m=cur.match(/^(.*)\.([A-Za-z0-9]+)(\?.*)?$/);
